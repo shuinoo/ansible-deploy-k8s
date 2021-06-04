@@ -1,0 +1,26 @@
+---
+- name: Get crictl completion
+  command: "/usr/bin/crictl completion"
+  changed_when: False
+  register: cri_completion
+  check_mode: false
+
+- name: Install crictl completion
+  copy:
+    dest: /etc/bash_completion.d/crictl
+    content: "{{ cri_completion.stdout }}"
+    mode: 0644
+
+- name: restart containerd
+  command: /bin/true
+  notify:
+    - Containerd | restart containerd
+    - Containerd | wait for containerd
+
+- name: Containerd | restart containerd
+  systemd:
+    name: containerd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+

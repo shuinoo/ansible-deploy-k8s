@@ -1,0 +1,27 @@
+---
+- name: "Install keepalived"
+  yum:
+    name: keepalived
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: "Install keepalived"
+  yum:
+    name: keepalived
+    state: present
+  when: ansible_pkg_mgr == 'apt'
+
+- name: "Generate keepalived.conf"
+  template:
+    src: "keepalived.conf.j2"
+    dest: "/etc/keepalived/keepalived.conf"
+  notify:
+    - restart keepalived
+
+- name: "Generate check_haproxy.sh"
+  template:
+    src: "check_haproxy.sh.j2"
+    dest: "/etc/keepalived/check_haproxy.sh"
+    mode: 0777
+  notify:
+    - restart keepalived

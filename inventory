@@ -1,0 +1,21 @@
+#本组内填写etcd服务器及主机名
+[etcd]
+192.168.10.4 hostname=etcd-01
+192.168.10.5 hostname=etcd-02
+192.168.10.6 hostname=etcd-03
+
+#本组内填写master服务器及主机名
+[master]
+192.168.10.4 hostname=master-01
+192.168.10.5 hostname=master-02
+192.168.10.6 hostname=master-03
+
+[haproxy]
+192.168.10.5 hostname=haproxy-01 type=MASTER priority=100
+192.168.10.6 hostname=haproxy-02 type=BACKUP priority=90
+
+#本组内填写node服务器及主机名
+[worker]
+192.168.10.4 hostname=worker-01
+192.168.10.5 hostname=worker-02
+192.168.10.6 hostname=worker-03

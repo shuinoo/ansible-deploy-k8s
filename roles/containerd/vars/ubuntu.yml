@@ -1,0 +1,17 @@
+---
+containerd_ubuntu_repo_base_url: "https://download.docker.com/linux/ubuntu"
+containerd_ubuntu_repo_gpgkey: "https://download.docker.com/linux/ubuntu/gpg"
+containerd_ubuntu_repo_repokey: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+containerd_ubuntu_repo_component: "stable"
+
+containerd_repo_key_info:
+  url: '{{ containerd_ubuntu_repo_gpgkey }}'
+  repo_keys:
+    - '{{ containerd_ubuntu_repo_repokey }}'
+
+containerd_repo_info:
+  repos:
+    - >
+      deb {{ containerd_ubuntu_repo_base_url }}
+      {{ ansible_distribution_release|lower }}
+      {{ containerd_ubuntu_repo_component }}
