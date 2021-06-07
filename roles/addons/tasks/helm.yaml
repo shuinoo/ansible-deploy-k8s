@@ -1,0 +1,12 @@
+---
+- name: "Unarchive helm-{{ helm.helm_version }}-linux-amd64.tar.gz into /usr/bin"
+  unarchive:
+    src: https://get.helm.sh/helm-{{ helm.helm_version  }}-linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: "copy helm to /usr/bin"
+  copy:
+    src: /tmp/linux-amd64/helm
+    dest: /usr/bin/
+    mode: 0777

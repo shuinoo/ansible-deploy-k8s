@@ -1,0 +1,78 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+data:
+  # 获取真实IP地址
+  compute-full-forwarded-for: "true"
+  forwarded-for-header: "X-Forwarded-For"
+  use-forwarded-headers: "true"
+  http2_max_concurrent_streams: "512"
+
+  # nginx-ingress前端还有代理,后端获取真实IP,前端代理务必配置,配置方法如下URL
+  # https://a5pop.com/container/2020-06-04-nginx-ingress-real-ip.html
+  # 如果ingress的前端代理不设置，后端会无法访问，报错broken header
+  # proxy-real-ip-cidr: 10.127.0.10
+  # use-proxy-protocol: "true"
+
+  # 关闭nginx 版本
+  server-tokens: "true"
+  # 设置 ssl 重定向
+  http-redirect-code: "302"
+  # 客户端请求头的缓冲区大小
+  client-header-buffer-size: "512k"
+  # 设置用于读取大型客户端请求标头的最大值number和size缓冲区
+  large-client-header-buffers: "4 512k"
+  # 读取客户端请求body的缓冲区大小
+  client-body-buffer-size: "128k"
+  # 代理缓冲区大小
+  proxy-buffer-size: "256k"
+  # 代理body大小
+  proxy-body-size: "500m"
+  # 服务器名称哈希大小
+  server-name-hash-bucket-size: "128"
+  # map哈希大小
+  map-hash-bucket-size: "128"
+  # keepalived
+  keep-alive: "75"
+  keep-alive-requests: "100"
+  upstream-keepalive-connection: "10000"
+  upstream-keepalive-requests: "100"
+  upstream-keepalive-timeout: "60"
+  # 传送自定义头信息
+  enable-underscores-in-headers: "true"
+  #
+  proxy_headers_hash_max_size: "512"
+  #
+  proxy_headers_hash_bucket_size: "128"
+  # SSL加密套件
+  ssl-ciphers: "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA"
+  # ssl 协议
+  ssl-protocols: "TLSv1 TLSv1.1 TLSv1.2 TLSv1.3 SSLv2 SSLv3"
+  # 日志格式
+  #log-format-upstream: '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent $request_time "$http_referer" $host DIRECT/$upstream_addr $upstream_http_content_type "$http_user_agent" "$http_x_forwarded_for" $request_length [$proxy_upstream_name] $upstream_response_length $upstream_response_time $upstream_status $req_id'
+  log-format-upstream: '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_length $request_time [$proxy_upstream_name] [$proxy_alternative_upstream_name] $upstream_addr $upstream_response_length $upstream_response_time $upstream_status $req_id'
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: udp-services
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx

@@ -92,3 +92,6 @@ dns:
   nodelocaldns_ip: 169.254.20.10
 metrics_server:
   version: v0.4.1
+helm:
+  helm_version: v3.6.0
+ingress:

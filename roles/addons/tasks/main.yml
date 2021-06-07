@@ -11,3 +11,11 @@
   when: dns.enable_nodelocaldns == true
   tags:
     - nodelocaldns
+
+- import_tasks: helm.yml
+  tags:
+    - helm
+
+- import_tasks: ingress.yml
+  tags:
+    - ingress
