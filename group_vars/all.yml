@@ -95,3 +95,5 @@ metrics_server:
 helm:
   helm_version: v3.6.0
 ingress:
+  ingress_version: v0.47.0
+  webhook_version: v1.15.1

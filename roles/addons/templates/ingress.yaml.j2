@@ -224,7 +224,6 @@ subjects:
     name: ingress-nginx
     namespace: ingress-nginx
 ---
-# Source: ingress-nginx/templates/controller-service-metrics.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -322,7 +321,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: controller
-          image: "k8s.gcr.io/ingress-nginx/controller:v0.47.0"
+          image: "k8s.gcr.io/ingress-nginx/controller:{{ ingress.ingress_version }}"
           imagePullPolicy: IfNotPresent
           lifecycle: 
             preStop:
@@ -556,7 +555,7 @@ spec:
     spec:
       containers:
         - name: create
-          image: "docker.io/jettech/kube-webhook-certgen:v1.5.1"
+          image: "docker.io/jettech/kube-webhook-certgen:{{ ingress.webhook_version }}"
           imagePullPolicy: IfNotPresent
           args:
             - create
@@ -594,7 +593,7 @@ spec:
     spec:
       containers:
         - name: patch
-          image: "docker.io/jettech/kube-webhook-certgen:v1.5.1"
+          image: "docker.io/jettech/kube-webhook-certgen:{{ ingress.webhook_version }}"
           imagePullPolicy: IfNotPresent
           args:
             - patch
