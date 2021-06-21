@@ -9,6 +9,7 @@ KUBELET_ARGS="\
     --container-runtime-endpoint=unix://{{containerd.state}}/containerd.sock \
     --image-service-endpoint=unix://{{containerd.state}}/containerd.sock \
 {% else %}
+    --runtime-cgroups=/system.slice/docker.service \
     --container-runtime=docker \
     --container-runtime-endpoint=unix://{{docker.state}}/dockershim.sock \
     --image-service-endpoint=unix://{{docker.state}}/dockershim.sock \
