@@ -7,7 +7,7 @@
 
 - name: Install docker depend packages
   yum:
-    name: {{ items }}
+    name: {{ item }}
   with_items:
     - yum-utils
     - device-mapper-persistent-data
@@ -18,7 +18,7 @@
 
 - name: Install docker depend packages
   apt:
-    name: {{ items }}
+    name: {{ item }}
     state: present
   with_items:
     - apt-transport-https
@@ -86,7 +86,7 @@
 
 - name: "Install docker"
   apt:
-    name: {{ items }}
+    name: {{ item }}
     state: present
   when: 
    - ansible_pkg_mgr == 'apt'

@@ -49,6 +49,7 @@ docker:
   version: 19.0.15
   root: "/var/lib/docker"
   registry-mirrors: "https://l0z7rpjj.mirror.aliyuncs.com"
+  state: "/run/docker"
 critools:
   version: v1.21.0
 containerd:

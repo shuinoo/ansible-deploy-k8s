@@ -3,10 +3,16 @@ KUBELET_ARGS="\
     --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
     --kubeconfig=/etc/kubernetes/kubelet.kubeconfig  \
     --config=/etc/kubernetes/kubelet.conf \
+{% if container-runtime == "containerd" %}
     --runtime-cgroups=/system.slice/containerd.service \
     --container-runtime=remote \
     --container-runtime-endpoint=unix://{{containerd.state}}/containerd.sock \
     --image-service-endpoint=unix://{{containerd.state}}/containerd.sock \
+{% else %}
+    --container-runtime=docker \
+    --container-runtime-endpoint=unix://{{docker.state}}/dockershim.sock \
+    --image-service-endpoint=unix://{{docker.state}}/dockershim.sock \
+{% endif %}
     --cert-dir=/etc/kubernetes/pki \
     --root-dir={{ kubernetes.kubelet_dir | default("/var/lib/kubelet") }} \
     --network-plugin=cni \
