@@ -1,0 +1,117 @@
+---
+- name: Fail docker setup if distribution is not supported
+  fail:
+    msg: "{{ ansible_distribution }} is not supported by docker."
+  when:
+    - not ansible_distribution in ["CentOS", "OracleLinux", "RedHat", "Ubuntu", "Debian", "Fedora", "AlmaLinux", "Amazon"]
+
+- name: Install docker depend packages
+  yum:
+    name: {{ items }}
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+  when: 
+   - ansible_os_family == 'RedHat'
+  tags: docker_depends
+
+- name: Install docker depend packages
+  apt:
+    name: {{ items }}
+    state: present
+  with_items:
+    - apt-transport-https
+    - ca-certificates 
+    - curl
+    - gnupg
+    - lsb-release
+  when: 
+   - ansible_pkg_mgr == 'apt'
+  tags: docker_depends
+
+- name: "Add docker repo"
+  yum_repository:
+    file: docker
+    name: "docker"
+    description: "Docker Stable - $basearch"
+    baseurl: "https://mirrors.bfsu.edu.cn/docker-ce/linux/centos/7/$basearch/stable"
+    gpgkey: "https://mirrors.bfsu.edu.cn/docker-ce/linux/centos/gpg"
+    gpgcheck: yes
+    enabled: yes
+  when: 
+   - ansible_os_family == 'RedHat'
+  tags: docker_repo
+
+- name: "Install docker"
+  yum:
+    update_cache: yes
+    enablerepo: docker
+    name: 'docker-ce{% if docker.version is defined and docker.version != ""  %}-{{ docker.version }}{% endif %}'
+    state: installed
+  tags: install_docker
+  when: 
+   - ansible_os_family == 'RedHat'
+
+- name: gather os specific variables
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution|lower }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+        - default.yaml
+      paths:
+        - 'vars'
+      skip: true
+
+- name: ensure docker repository public key is installed
+  apt_key:
+    id: "{{ item }}"
+    url: "{{ docker_repo_key_info.url }}"
+    state: present
+  register: keyserver_task_result
+  until: keyserver_task_result is succeeded
+  retries: 4
+  delay: "{{ retry_stagger | d(3) }}"
+  with_items: "{{ docker_repo_key_info.repo_keys }}"
+  when: ansible_pkg_mgr == 'apt'
+
+- name: ensure docker repository is enabled
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items: "{{ docker_repo_info.repos }}"
+  when: ansible_pkg_mgr == 'apt'
+
+- name: "Install docker"
+  apt:
+    name: {{ items }}
+    state: present
+  when: 
+   - ansible_pkg_mgr == 'apt'
+  with_items:
+    - "docker-ce={% if docker.version is defined and docker.version != "" %}{{ docker.version }}{% endif %}"
+    - "docker-cli={% if docker.version is defined and docker.version != "" %}{{ docker.version }}{% endif %}"
+    - containerd.io
+  tags: install_docker
+
+- name: "Create docker directory"
+  file:
+    path: "{{ docker.root }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  tags: docker_config
+
+- name: "Set docker config"
+  template:
+    src: "daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
+    owner: root
+    group: root
+    mode: 0644
+  tags: docker_config
+  notify:
+    - restart docker

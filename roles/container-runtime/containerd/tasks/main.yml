@@ -1,4 +1,10 @@
 ---
+- name: Fail containerd setup if distribution is not supported
+  fail:
+    msg: "{{ ansible_distribution }} is not supported by containerd."
+  when:
+    - not ansible_distribution in ["CentOS", "OracleLinux", "RedHat", "Ubuntu", "Debian", "Fedora", "AlmaLinux", "Amazon"]
+
 - name: "Add containerd repo"
   yum_repository:
     file: containerd
@@ -11,12 +17,6 @@
   when: 
    - ansible_os_family == 'RedHat'
   tags: containerd_repo
-
-- name: Fail containerd setup if distribution is not supported
-  fail:
-    msg: "{{ ansible_distribution }} is not supported by containerd."
-  when:
-    - not ansible_distribution in ["CentOS", "OracleLinux", "RedHat", "Ubuntu", "Debian", "Fedora", "AlmaLinux", "Amazon"]
 
 - name: gather os specific variables
   include_vars: "{{ lookup('first_found', params) }}"

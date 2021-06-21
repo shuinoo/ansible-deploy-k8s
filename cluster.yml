@@ -41,10 +41,10 @@
 - name: "Set Worker Nodes"
   hosts: master worker
   roles:
-    - role: containerd
-      tags: containerd
-    - role: cri-tools
-      tags: cri-tools
+    - role: container-runtime
+      tags: container-runtime
+#    - role: cri-tools
+#      tags: cri-tools
     - role: cni-plugins
       tags: cni-plugins
     - role: worker
