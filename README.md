@@ -9,7 +9,7 @@
 ### 1.1、拉取Playbook代码
 
 ```
-git clone https://github.com/k8sre/k8s.git
+git clone https://github.com/shuinoo/ansible-deploy-k8s.git
 ```
 
 
