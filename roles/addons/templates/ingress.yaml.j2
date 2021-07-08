@@ -294,7 +294,7 @@ spec:
     app.kubernetes.io/component: controller
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: DeamonSet
 metadata:
   labels:
     app.kubernetes.io/name: ingress-nginx
@@ -303,7 +303,6 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
 spec:
-  replicas: 3
   selector:
     matchLabels:
       app.kubernetes.io/name: ingress-nginx

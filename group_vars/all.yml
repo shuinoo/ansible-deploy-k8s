@@ -88,7 +88,7 @@ flannel:
   network_mode: vxlan
 # cilium need linux kernel >= 4.9.17
 cilium:
-  version: v1.9.6
+  version: v1.9.8
 
 # Addons
 dns:
@@ -101,5 +101,5 @@ metrics_server:
 helm:
   helm_version: v3.6.0
 ingress:
-  ingress_version: v0.47.0
+  ingress_version: v0.40.0
   webhook_version: v1.15.1
