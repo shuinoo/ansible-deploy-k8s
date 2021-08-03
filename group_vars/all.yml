@@ -45,7 +45,6 @@ kubernetes:
   # 集群管理员
   clusterAdminName: wx-k8s-admin
 
-
 # Containerd
 container_runtime: docker
 docker:

@@ -12,8 +12,7 @@
     - yum-utils
     - device-mapper-persistent-data
     - lvm2
-  when: 
-   - ansible_os_family == 'RedHat'
+  when: ansible_os_family == 'RedHat'
   tags: docker_depends
 
 - name: Install docker depend packages
@@ -26,8 +25,7 @@
     - curl
     - gnupg
     - lsb-release
-  when: 
-   - ansible_pkg_mgr == 'apt'
+  when: ansible_os_family == 'Debian'
   tags: docker_depends
 
 - name: "Add docker repo"
@@ -39,8 +37,7 @@
     gpgkey: "https://mirrors.bfsu.edu.cn/docker-ce/linux/centos/gpg"
     gpgcheck: yes
     enabled: yes
-  when: 
-   - ansible_os_family == 'RedHat'
+  when: ansible_os_family == 'RedHat'
   tags: docker_repo
 
 - name: "Install docker"
@@ -50,8 +47,7 @@
     name: "docker-ce-{{ docker.version }}"
     state: installed
   tags: install_docker
-  when: 
-   - ansible_os_family == 'RedHat'
+  when: ansible_os_family == 'RedHat'
 
 - name: gather os specific variables
   include_vars: "{{ lookup('first_found', params) }}"
@@ -75,21 +71,20 @@
   retries: 4
   delay: "{{ retry_stagger | d(3) }}"
   with_items: "{{ docker_repo_key_info.repo_keys }}"
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_os_family == 'Debian'
 
 - name: ensure docker repository is enabled
   apt_repository:
     repo: "{{ item }}"
     state: present
   with_items: "{{ docker_repo_info.repos }}"
-  when: ansible_pkg_mgr == 'apt'
+  when: ansible_os_family == 'Debian'
 
 - name: "Install docker"
   apt:
     name: "{{ item }}"
     state: present
-  when: 
-   - ansible_pkg_mgr == 'apt'
+  when: ansible_os_family == 'Debian'
   with_items:
     - "docker-ce={{ docker.version }}"
     - "docker-cli={{ docker.version }}"

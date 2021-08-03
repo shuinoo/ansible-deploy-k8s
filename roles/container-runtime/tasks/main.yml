@@ -1,12 +1,12 @@
 ---
 - import_tasks: ../docker/tasks/main.yml
   when:
-    - network_plugin == 'docker'
+    - container_runtime == 'docker'
   tags:
     - docker
 
 - import_tasks: ../containerd/tasks/main.yml
   when:
-    - network_plugin == 'containerd'
+    - container_runtime == 'containerd'
   tags:
     - containerd
