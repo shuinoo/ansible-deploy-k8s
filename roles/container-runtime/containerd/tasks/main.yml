@@ -53,7 +53,7 @@
   yum:
     update_cache: yes
     enablerepo: containerd
-    name: 'containerd.io{% if containerd.version is defined and containerd.version != ""  %}-{{ containerd.version }}{% endif %}'
+    name: "containerd.io-{{ containerd.version }}"
     state: installed
   tags: install_containerd
   when: 
@@ -61,7 +61,7 @@
 
 - name: "Install containerd"
   apt:
-    name: 'containerd.io={% if containerd.version is defined and containerd.version != ""  %}{{ containerd.version }}{% endif %}'
+    name: "containerd.io-{{ containerd.version  }}"
     state: present
   when: 
    - ansible_pkg_mgr == 'apt'

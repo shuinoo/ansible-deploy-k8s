@@ -1,5 +1,5 @@
 version = 2
-root = "{{ containerd.root | default("/var/lib/containerd") }}"
+root = "{{ containerd.root | default("/data/kubernetes/containerd") }}"
 state = "{{ containerd.state | default("/run/containerd") }}"
 plugin_dir = ""
 # Kubernetes doesn't use containerd restart manager.

@@ -1,7 +1,7 @@
 # Kubernetes Cert
 cert:
   # 签发集群整数保存目录，默认签发10年有限期证书
-  dir: /opt/certs/pro
+  dir: /opt/certs/
   # 签发证书大小
   size: 2048
 
@@ -10,7 +10,7 @@ etcd:
   # etcd 版本
   version: 3.4.13
   # etcd 数据目录
-  data_dir: "/var/lib/etcd"
+  data_dir: "/data/etcd"
 
 # High Availability
 # kube-apiserver负载均衡的信息
@@ -32,22 +32,24 @@ kubernetes:
   # 集群Service网段
   serviceSubnet: 10.80.0.0/16
   # kubelet 数据目录
-  kubelet_dir: "/var/lib/kubelet"
+  kubelet_dir: "/data/kubernetes/kubelet"
   # cni-plugins: https://github.com/containernetworking/plugins
   cni_plugins_version: v0.8.7
+  # kubernetes 日志目录
+  log: "/data/kubernetes/logs"
   # 集群DNS域名
-  clusterDns: cluster.shenzhen
+  clusterDns: cluster.wx
   # 集群名称
-  clusterName: shenzhen-k8s
+  clusterName: wx-k8s
   # 集群管理员
-  clusterAdminName: shenzhen-k8s-admin
+  clusterAdminName: wx-k8s-admin
 
 
 # Containerd
 container_runtime: docker
 docker:
   version: 19.0.15
-  root: "/var/lib/docker"
+  root: "/data/kubernetes/docker"
   registry-mirrors: "https://l0z7rpjj.mirror.aliyuncs.com"
   state: "/run/docker"
 critools:
@@ -56,7 +58,7 @@ containerd:
   # containerd 版本
   version: 1.4.4-1
   # containerd 持久化数据目录
-  root: "/var/lib/containerd"
+  root: "/data/kubernetes/containerd"
   # containerd 临时数据目录
   state: "/run/containerd"
   grpc:

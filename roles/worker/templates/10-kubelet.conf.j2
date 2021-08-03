@@ -15,6 +15,6 @@ KUBELET_ARGS="\
     --image-service-endpoint=unix://{{docker.state}}/dockershim.sock \
 {% endif %}
     --cert-dir=/etc/kubernetes/pki \
-    --root-dir={{ kubernetes.kubelet_dir | default("/var/lib/kubelet") }} \
+    --root-dir={{ kubernetes.kubelet_dir | default("/data/kubernetes/kubelet") }} \
     --network-plugin=cni \
     --v=2"

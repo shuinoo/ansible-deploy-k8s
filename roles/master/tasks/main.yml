@@ -29,7 +29,7 @@
 
 - name: "Create kubernetes log directory"
   file:
-    path: "/var/log/kubernetes"
+    path: ""{{ kubernetes.log | default("/data/kubernetes/logs")  }}"
     owner: kube
     group: kube
     mode: 0755

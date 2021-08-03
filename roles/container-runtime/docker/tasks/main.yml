@@ -7,7 +7,7 @@
 
 - name: Install docker depend packages
   yum:
-    name: {{ item }}
+    name: "{{ item }}"
   with_items:
     - yum-utils
     - device-mapper-persistent-data
@@ -18,7 +18,7 @@
 
 - name: Install docker depend packages
   apt:
-    name: {{ item }}
+    name: "{{ item }}"
     state: present
   with_items:
     - apt-transport-https
@@ -47,7 +47,7 @@
   yum:
     update_cache: yes
     enablerepo: docker
-    name: 'docker-ce{% if docker.version is defined and docker.version != ""  %}-{{ docker.version }}{% endif %}'
+    name: "docker-ce-{{ docker.version }}"
     state: installed
   tags: install_docker
   when: 
@@ -86,14 +86,14 @@
 
 - name: "Install docker"
   apt:
-    name: {{ item }}
+    name: "{{ item }}"
     state: present
   when: 
    - ansible_pkg_mgr == 'apt'
   with_items:
-    - "docker-ce={% if docker.version is defined and docker.version != "" %}{{ docker.version }}{% endif %}"
-    - "docker-cli={% if docker.version is defined and docker.version != "" %}{{ docker.version }}{% endif %}"
-    - containerd.io
+    - "docker-ce={{ docker.version }}"
+    - "docker-cli={{ docker.version }}"
+    - "containerd.io"
   tags: install_docker
 
 - name: "Create docker directory"

@@ -7,13 +7,13 @@
   tasks:
     - name: set variable
       set_fact:
-        partation: "{{ disk }}1"
+        partation: "{{ disk }}"
     - stat:
         path: "/dev/{{ partation }}"
       register: disk_stat
       tags: fdisk
     - name: "创建/dev/{{ disk }}分区"
-      when: not disk_stat.stat.exists
+      when: disk_stat.stat.exists
       parted:
         device: "/dev/{{ disk }}"
         number: 1
@@ -28,7 +28,7 @@
         msg: "即将格式化的磁盘分区是/dev/{{ partation }}"
       tags: fdisk
     - name: "格式化/dev/{{ partation }}分区"
-      when: not disk_stat.stat.exists
+      when: disk_stat.stat.exists
       filesystem:
         dev: "/dev/{{ partation }}"
         force: yes
