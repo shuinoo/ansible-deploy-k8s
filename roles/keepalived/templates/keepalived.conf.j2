@@ -29,7 +29,7 @@ vrrp_instance VI_1 {
 
     }
     virtual_ipaddress {
-        {{loadbalance.ip}}/22 
+        {{ loadbalance.ip }}/{{ loadbalance.netmask }} 
     }
     track_script {
         Checkhaproxy
