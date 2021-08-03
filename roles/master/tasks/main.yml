@@ -141,6 +141,21 @@
     - {src: "kube-controller-manager.service.j2",dest: "/usr/lib/systemd/system/kube-controller-manager.service" }
     - {src: "kube-scheduler.service.j2",dest: "/usr/lib/systemd/system/kube-scheduler.service" }
   tags: dis_master_systemd
+  when: ansible_os_family == "RedHat"
+
+- name: "Distribution master systemd unit"
+  template:
+    src: "{{ item.src }}"
+    owner: root
+    group: root
+    mode: 0644
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "kube-apiserver.service.j2",dest: "/lib/systemd/system/kube-apiserver.service" }
+    - {src: "kube-controller-manager.service.j2",dest: "/lib/systemd/system/kube-controller-manager.service" }
+    - {src: "kube-scheduler.service.j2",dest: "/lib/systemd/system/kube-scheduler.service" }
+  tags: dis_master_systemd
+  when: ansible_os_family == "Debian"
 
 - name: "Restart kube-apiserver"
   systemd:

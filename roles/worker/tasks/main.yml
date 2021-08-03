@@ -133,6 +133,20 @@
     - {src: "kubelet.service.j2",dest: "/usr/lib/systemd/system/kubelet.service" }
     - {src: "kube-proxy.service.j2",dest: "/usr/lib/systemd/system/kube-proxy.service" }
   tags: dis_worker_systemd
+  when: ansible_os_family == "RedHat"
+
+- name: "Distribution worker system unit"
+  template:
+    src: "{{ item.src }}"
+    owner: root
+    group: root
+    mode: 0644
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "kubelet.service.j2",dest: "/usr/lib/systemd/system/kubelet.service" }
+    - {src: "kube-proxy.service.j2",dest: "/usr/lib/systemd/system/kube-proxy.service" }
+  tags: dis_worker_systemd
+  when: ansible_os_family == "Debian"
 
 - name: "Check if bootstrap-token exists"
   shell: kubectl -n kube-system get secret bootstrap-token-{{ token_id.stdout }}

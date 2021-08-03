@@ -73,7 +73,7 @@
     - { regexp: "AddressFamily", line: "AddressFamily inet" }
     - { regexp: "PermitRootLogin", line: "PermitRootLogin yes" }
     - { regexp: "PermitEmptyPasswords", line: "PermitEmptyPasswords no" }
-    - { regexp: "PasswordAuthentication", line: "PasswordAuthentication no" }
+    - { regexp: "PasswordAuthentication", line: "PasswordAuthentication yes" }
   notify:
     - restart sshd
   tags: sshd
@@ -199,7 +199,7 @@
     - {line: 'rsync'}
     - {line: 'telnet'}
     - {line: 'bash-completion'}
-    - {line: 'ncat'}
+    - {line: 'netcat'}
     - {line: 'net-tools'}
     - {line: 'nfs-common'}
     - {line: 'ntpdate'}
