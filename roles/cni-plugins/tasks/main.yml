@@ -10,7 +10,7 @@
 
 - name: Get cni-plugins
   get_url:
-    url: "https://github.com/containernetworking/plugins/releases/download/{{ kubernetes.cni_plugins_version  }}/cni-plugins-linux-amd64-{{ kubernetes.cni_plugins_version }}.tgz"
+    url: "http://192.168.199.2/kubernetes/cni-plugins-linux-amd64-{{ kubernetes.cni_plugins_version  }}.tgz"
     dest: /tmp/
 
 - name: Install cni-plugins

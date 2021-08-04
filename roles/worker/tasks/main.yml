@@ -72,7 +72,7 @@
     - dis_worker_certs
     - dis_certs
 
-- name: "Get bootstrap-token"
+- name: "Copy bootstrap-token"
   copy:
     src: "{{ cert.dir }}/token"
     dest: "/etc/kubernetes/pki/"
@@ -143,8 +143,8 @@
     mode: 0644
     dest: "{{ item.dest }}"
   with_items:
-    - {src: "kubelet.service.j2",dest: "/usr/lib/systemd/system/kubelet.service" }
-    - {src: "kube-proxy.service.j2",dest: "/usr/lib/systemd/system/kube-proxy.service" }
+    - {src: "kubelet.service.j2",dest: "/lib/systemd/system/kubelet.service" }
+    - {src: "kube-proxy.service.j2",dest: "/lib/systemd/system/kube-proxy.service" }
   tags: dis_worker_systemd
   when: ansible_os_family == "Debian"
 

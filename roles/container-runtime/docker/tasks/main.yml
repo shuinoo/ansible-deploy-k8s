@@ -99,13 +99,13 @@
     state: directory
   tags: docker_config
 
-- name: "Set docker config"
+- name: "Copy docker config"
   template:
-    src: "../templates/daemon.json.j2"
+    src: "daemon.json.j2"
     dest: "/etc/docker/daemon.json"
     owner: root
     group: root
     mode: 0644
   tags: docker_config
   notify:
-    - restart docker
+    - restart_docker
