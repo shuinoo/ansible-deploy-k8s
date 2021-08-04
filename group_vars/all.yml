@@ -49,6 +49,7 @@ kubernetes:
 container_runtime: docker
 docker:
   version: 19.0.15
+  ubuntuversion: 5:19.03.15~3-0~ubuntu-bionic
   root: "/data/kubernetes/docker"
   registry-mirrors: "https://l0z7rpjj.mirror.aliyuncs.com"
   state: "/run/docker"

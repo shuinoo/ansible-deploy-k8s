@@ -54,12 +54,10 @@
   vars:
     params:
       files:
-        - "{{ ansible_distribution|lower }}.yml"
-        - "{{ ansible_os_family|lower }}.yml"
-        - default.yaml
+        - '{{ ansible_distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
       paths:
-        - 'vars'
-      skip: true
+        - '../vars'
 
 - name: ensure docker repository public key is installed
   apt_key:
@@ -85,9 +83,10 @@
     name: "{{ item }}"
     state: present
   when: ansible_os_family == 'Debian'
+  changed_when: false
   with_items:
-    - "docker-ce={{ docker.version }}"
-    - "docker-cli={{ docker.version }}"
+    - "docker-ce={{ docker.ubuntuversion }}"
+    - "docker-ce-cli={{ docker.ubuntuversion }}"
     - "containerd.io"
   tags: install_docker
 
@@ -102,7 +101,7 @@
 
 - name: "Set docker config"
   template:
-    src: "daemon.json.j2"
+    src: "../templates/daemon.json.j2"
     dest: "/etc/docker/daemon.json"
     owner: root
     group: root

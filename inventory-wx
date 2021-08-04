@@ -11,8 +11,8 @@
 192.168.199.23 hostname=master-03
 
 [haproxy]
-192.168.199.21 hostname=haproxy-01 type=MASTER priority=100
-192.168.199.22 hostname=haproxy-02 type=BACKUP priority=90
+192.168.199.21 hostname=haproxy-01 type=MASTER priority=100 unicast_peer=192.168.199.22
+192.168.199.22 hostname=haproxy-02 type=BACKUP priority=90 unicast_peer=192.168.199.21
 
 #本组内填写node服务器及主机名
 [worker]
