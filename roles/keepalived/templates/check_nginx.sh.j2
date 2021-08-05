@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ `ps -C nginx --no-header |wc -l` -eq 0 ] ; then
+    systemctl restart nginx
+    sleep 3
+    if [ `ps -C nginx --no-header |wc -l` -eq 0 ] ; then
+        systemctl stop nginx
+    fi
+fi

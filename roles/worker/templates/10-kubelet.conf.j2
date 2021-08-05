@@ -11,7 +11,7 @@ KUBELET_ARGS="\
     --container-runtime=docker \
     --container-runtime-endpoint=unix:///var/run/dockershim.sock \
 {% endif %}
-    --hostname-override={{ ansible_hostname }}-{{ ansible_default_ipv4.address }} \
+    --hostname-override={{ ansible_hostname }} \
     --kubeconfig=/etc/kubernetes/kubelet.kubeconfig  \
     --logtostderr=true \
     --network-plugin=cni \

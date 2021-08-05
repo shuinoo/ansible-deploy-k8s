@@ -97,91 +97,110 @@
     - get_token_secret
     - bootstrap_token
 
-- name: "授予kube-apiserver访问kubelet API权限"
-  shell: kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
+- name: "Check if kube-apiserver:kubelet-apis exists"
+  shell: kubectl get clusterrolebinding kube-apiserver:kubelet-apis
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: kubelet_apis_ready
+  tags: bootstrap
 
-    #- name: "Check if bootstrap-token exists"
-    #  shell: kubectl -n kube-system get secret bootstrap-token-{{ token_id.stdout }}
-    #  delegate_to: "{{ groups['master'][0] }}"
-    #  run_once: true
-    #  register: bootstrap_token_ready
-    #  tags: bootstrap
+- name: "授予kube-apiserver访问kubelet API权限"
+  when: kubelet_apis_ready.rc != 0
+  shell: kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  tags: bootstrap
+
+- name: "Check if bootstrap-token exists"
+  shell: kubectl -n kube-system get secret bootstrap-token-{{ token_id.stdout }}
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: bootstrap_token_ready
+  tags: bootstrap
 
 - name: "创建bootstrap-token secret"
-  #when: bootstrap_token_ready.rc != 0
+  when: bootstrap_token_ready.rc != 0
   shell: kubectl -n kube-system create secret generic bootstrap-token-{{ token_id.stdout }} --type 'bootstrap.kubernetes.io/token' --from-literal description="cluster bootstrap token" --from-literal token-id={{ token_id.stdout }} --from-literal token-secret={{ token_secret.stdout }} --from-literal usage-bootstrap-authentication=true --from-literal usage-bootstrap-signing=true
   delegate_to: "{{ groups['master'][0] }}"
   run_once: true
   tags: bootstrap
 
-  #- name: "Check if clusterrolebinding kubelet-bootstrap exists"
-  #  shell: kubectl get clusterrolebinding kubelet-bootstrap
-  #  ignore_errors: yes
-  #  delegate_to: "{{ groups['master'][0] }}"
-  #  run_once: true
-  #  register: kubelet_bootstrap_ready
-  #  tags: bootstrap
+- name: "Check if clusterrolebinding kubelet-bootstrap exists"
+  shell: kubectl get clusterrolebinding kubelet-bootstrap
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: kubelet_bootstrap_ready
+  tags: bootstrap
 
 - name: "绑定group system:bootstrappers 和 clusterrole system:node-bootstrapper"
-  #  when: kubelet_bootstrap_ready.rc != 0
+  when: kubelet_bootstrap_ready.rc != 0
   shell: kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --group=system:bootstrappers
   delegate_to: "{{ groups['master'][0] }}"
   run_once: true
   tags: bootstrap
 
-  #- name: "Check if node-autoapprove-bootstrap exists"
-  #  shell: kubectl get clusterrolebinding node-autoapprove-bootstrap
-  #  ignore_errors: yes
-  #  delegate_to: "{{ groups['master'][0] }}"
-  #  run_once: true
-  #  register: node_autoapprove_bootstrap_ready
-  #  tags: bootstrap
+- name: "Check if node-autoapprove-csrs-for-group exists"
+  shell: kubectl get clusterrolebinding node-autoapprove-csrs-for-group
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: node_autoapprove_csrs_for_group_ready
+  tags: bootstrap
 
 - name: "自动批准 system:bootstrappers 组用户 TLS bootstrapping 首次申请证书的 CSR 请求"
-  #when: node_autoapprove_bootstrap_ready.rc != 0
+  when: node_autoapprove_csrs_for_group_ready.rc != 0
   shell: kubectl create clusterrolebinding node-autoapprove-csrs-for-group --clusterrole=system:certificates.k8s.io:certificatesigningrequests:nodeclient --group=system:bootstrappers
   delegate_to: "{{ groups['master'][0] }}"
   run_once: true
   tags: bootstrap
 
-  #- name: "Check if clusterrolebinding node-autoapprove-certificate-rotation exists"
-  #  shell: kubectl get clusterrolebinding node-autoapprove-certificate-rotation
-  #  ignore_errors: yes
-  #  delegate_to: "{{ groups['master'][0] }}"
-  #  run_once: true
-  #  register: node_autoapprove_certificate_rotation_ready
-  #  tags: bootstrap
+- name: "Check if clusterrolebinding  node-client-cert-renewal exists"
+  shell: kubectl get clusterrolebinding node-client-cert-renewal
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: node_client_cert_renewal_ready
+  tags: bootstrap
 
 - name: "自动批准 system:nodes 组用户更新 kubelet 自身与 apiserver 通讯证书的 CSR 请求"
-  #when: node_autoapprove_certificate_rotation_ready.rc != 0
+  when: node_client_cert_renewal_ready.rc != 0
   shell: kubectl create clusterrolebinding node-client-cert-renewal --clusterrole=system:certificates.k8s.io:certificatesigningrequests:selfnodeclient --group=system:nodes
   delegate_to: "{{ groups['master'][0] }}"
   run_once: true
   tags: bootstrap
 
+- name: "Check if clusterrole approve-node-server-renewal-csr exists"
+  shell: kubectl get clusterrole approve-node-server-renewal-csr
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: approve_node_server_renewal_csr_ready
+  tags: bootstrap
+
 - name: "创建自动批准相关 CSR 请求的 ClusterRole"
+  when: approve_node_server_renewal_csr_ready.rc != 0
   shell: kubectl create clusterrole approve-node-server-renewal-csr --verb=create --resource=certificatesigningrequests/selfnodeserver --resource-name=certificates.k8s.io
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  tags: bootstrap
+
+- name: "Check if clusterrolebinding node-server-cert-renewal exists"
+  shell: kubectl get clusterrolebinding node-server-cert-renewal
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: node_server_cert_renewal_ready
+  tags: bootstrap
 
 - name: "自动批准 system:nodes 组用户更新 kubelet 10250 api 端口证书的 CSR 请求"
+  when: node_server_cert_renewal_ready.rc != 0
   shell: kubectl create clusterrolebinding node-server-cert-renewal --clusterrole=system:certificates.k8s.io:certificatesigningrequests:selfnodeserver --group=system:nodes
-
-- name: "暂停1分钟"
-  pause: minutes=1
-
-- name: "获取Pending状态的csr"
-  shell: kubectl get csr| grep Pending | awk '{print $1}'|tr '\n' ' '
-  register: approve_csr
-
-- name: "approve csr"
-  shell: kubectl certificate approve {{ approve_csr.stdout }}
-
-- name: "删除bootstrap-token文件"
-  file:
-    path: "/etc/kubernetes/pki/token"
-    state: absent
-  tags:
-    - delete_token
-    - bootstrap_token
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  tags: bootstrap
 
 - name: "Distribution worker kubeconfig"
   template:
@@ -234,6 +253,17 @@
   tags: dis_worker_systemd
   when: ansible_os_family == "Debian"
 
+  #- name: "暂停1分钟"
+  #  pause: minutes=1
+  #
+  #- name: "获取Pending状态的csr"
+  #  shell: kubectl get csr| grep Pending | awk '{print $1}'|tr '\n' ' '
+  #  register: approve_csr
+  #
+  #- name: "approve csr"
+  #  shell: kubectl certificate approve {{ approve_csr.stdout }}
+  #  delegate_to: "{{ groups['master'][0] }}"
+  #  run_once: true
 
 - name: "Restart kubelet"
   systemd:
@@ -286,6 +316,14 @@
   register: proxy
   connection: local
   tags: healthcheck
+
+- name: "删除bootstrap-token文件"
+  file:
+    path: "/etc/kubernetes/pki/token"
+    state: absent
+  tags:
+    - delete_token
+    - bootstrap_token
 
 - name: "Create taint for master"
   shell: "kubectl taint nodes {{ hostvars[item].hostname }}-{{ item }} node-role.kubernetes.io/master=:NoSchedule"
