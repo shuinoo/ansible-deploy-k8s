@@ -98,7 +98,7 @@
     - bootstrap_token
 
 - name: "授予kube-apiserver访问kubelet API权限"
-    shell: kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
+  shell: kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
 
     #- name: "Check if bootstrap-token exists"
     #  shell: kubectl -n kube-system get secret bootstrap-token-{{ token_id.stdout }}
@@ -233,7 +233,6 @@
     - {src: "kube-proxy.service.j2",dest: "/lib/systemd/system/kube-proxy.service" }
   tags: dis_worker_systemd
   when: ansible_os_family == "Debian"
-
 
 
 - name: "Restart kubelet"
