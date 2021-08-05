@@ -43,16 +43,34 @@
     - {line: "{{ kubernetes.kubelet_dir }}"}
   tags: dir
 
-- name: "Install worker node"
+- name: "判断kubelet二进制文件是否存在"
+  shell: which kubelet
+  ignore_errors: true
+  register: kubelet_ready
+
+- name: "Install kubelet"
+  when: kubelet_ready.rc != 0
   get_url:
-    url: "{{ item.line }}"
+    url: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version  }}/bin/linux/amd64/kubelet"
     dest: /usr/bin/
     owner: root
     group: root
     mode: 0750
-  with_items:
-    - { line: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version }}/bin/linux/amd64/kubelet"}
-    - { line: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version }}/bin/linux/amd64/kube-proxy"}
+  tags: install_worker
+
+- name: "判断kube-proxy二进制文件是否存在"
+  shell: which kube-proxy
+  ignore_errors: true
+  register: kube_proxy_ready
+
+- name: "Install kube-proxy"
+  when: kube_proxy_ready.rc != 0
+  get_url:
+    url: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version  }}/bin/linux/amd64/kube-proxy"
+    dest: /usr/bin/
+    owner: root
+    group: root
+    mode: 0750
   tags: install_worker
 
 - name: "Distribution worker certs"
@@ -137,7 +155,22 @@
 
 - name: "绑定group system:bootstrappers 和 clusterrole system:node-bootstrapper"
   when: kubelet_bootstrap_ready.rc != 0
-  shell: kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --group=system:bootstrappers
+  shell: kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  tags: bootstrap
+
+- name: "Check if clusterrole approve-node-server-renewal-csr exists"
+  shell: kubectl get clusterrole approve-node-server-renewal-csr
+  ignore_errors: yes
+  delegate_to: "{{ groups['master'][0] }}"
+  run_once: true
+  register: approve_node_server_renewal_csr_ready
+  tags: bootstrap
+
+- name: "创建自动批准相关 CSR 请求的 ClusterRole"
+  when: approve_node_server_renewal_csr_ready.rc != 0
+  shell: kubectl create clusterrole approve-node-server-renewal-csr --verb=create --resource=certificatesigningrequests/selfnodeserver --resource-name=certificates.k8s.io
   delegate_to: "{{ groups['master'][0] }}"
   run_once: true
   tags: bootstrap
@@ -168,21 +201,6 @@
 - name: "自动批准 system:nodes 组用户更新 kubelet 自身与 apiserver 通讯证书的 CSR 请求"
   when: node_client_cert_renewal_ready.rc != 0
   shell: kubectl create clusterrolebinding node-client-cert-renewal --clusterrole=system:certificates.k8s.io:certificatesigningrequests:selfnodeclient --group=system:nodes
-  delegate_to: "{{ groups['master'][0] }}"
-  run_once: true
-  tags: bootstrap
-
-- name: "Check if clusterrole approve-node-server-renewal-csr exists"
-  shell: kubectl get clusterrole approve-node-server-renewal-csr
-  ignore_errors: yes
-  delegate_to: "{{ groups['master'][0] }}"
-  run_once: true
-  register: approve_node_server_renewal_csr_ready
-  tags: bootstrap
-
-- name: "创建自动批准相关 CSR 请求的 ClusterRole"
-  when: approve_node_server_renewal_csr_ready.rc != 0
-  shell: kubectl create clusterrole approve-node-server-renewal-csr --verb=create --resource=certificatesigningrequests/selfnodeserver --resource-name=certificates.k8s.io
   delegate_to: "{{ groups['master'][0] }}"
   run_once: true
   tags: bootstrap
