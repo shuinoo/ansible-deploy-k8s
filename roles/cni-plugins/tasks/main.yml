@@ -1,7 +1,16 @@
 ---
-- name: "Create cni-plugins directory"
+- name: "Create cni-plugins bin directory"
   file:
     path: "/opt/cni/bin/"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  tags: dir
+
+- name: "Create cni-plugins etc directory"
+  file:
+    path: "/etc/cni/net.d/"
     owner: root
     group: root
     mode: 0755

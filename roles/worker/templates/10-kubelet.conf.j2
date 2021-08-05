@@ -1,7 +1,6 @@
 KUBELET_ARGS="\
-    --hostname-override={{ ansible_hostname }}-{{ ansible_default_ipv4.address }} \
     --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
-    --kubeconfig=/etc/kubernetes/kubelet.kubeconfig  \
+    --cert-dir=/etc/kubernetes/pki \
     --config=/etc/kubernetes/kubelet.conf \
 {% if container_runtime == "containerd" %}
     --runtime-cgroups=/system.slice/containerd.service \
@@ -9,12 +8,13 @@ KUBELET_ARGS="\
     --container-runtime-endpoint=unix:///var/run/containerd.sock \
     --image-service-endpoint=unix:///var/run/containerd.sock \
 {% else %}
-    --runtime-cgroups=/system.slice/docker.service \
     --container-runtime=docker \
-    --container-runtime-endpoint=unix:///var/run/docker.sock \
-    --image-service-endpoint=unix:///var/run/docker.sock \
+    --container-runtime-endpoint=unix:///var/run/dockershim.sock \
 {% endif %}
-    --cert-dir=/etc/kubernetes/pki \
-    --root-dir={{ kubernetes.kubelet_dir | default("/data/kubernetes/kubelet") }} \
+    --hostname-override={{ ansible_hostname }}-{{ ansible_default_ipv4.address }} \
+    --kubeconfig=/etc/kubernetes/kubelet.kubeconfig  \
+    --logtostderr=true \
     --network-plugin=cni \
+    --root-dir={{ kubernetes.kubelet_dir | default("/data/kubernetes/kubelet") }} \
+    --pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/qcloud-gcr/pause-amd64:3.2 \
     --v=2"

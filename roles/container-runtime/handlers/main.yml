@@ -2,17 +2,17 @@
 - name: restart_docker
   command: /bin/true
   notify:
-    - Docker | restart_docker
-    - Docker | wait_for_docker
+    - restart_docker
+    - wait_for_docker
 
-- name: Docker | restart_docker
+- name: restart_docker
   systemd:
     name: docker
     state: restarted
     enabled: yes
     daemon_reload: yes
 
-- name: Docker | wait_for_docker
+- name: wait_for_docker
   command: "docker images ls -q"
   register: docker_ready
   retries: 8
@@ -22,20 +22,19 @@
 - name: restart_containerd
   command: /bin/true
   notify:
-    - Containerd | restart_containerd
-    - Containerd | wait_for_containerd
+    - restart_containerd
+    - wait_for_containerd
 
-- name: Containerd | restart_containerd
+- name: restart_containerd
   systemd:
     name: containerd
     state: restarted
     enabled: yes
     daemon_reload: yes
 
-- name: Containerd | wait_for_containerd
+- name: wait_for_containerd
   command: "ctr images ls -q"
   register: containerd_ready
   retries: 8
   delay: 4
   until: containerd_ready.rc == 0
-

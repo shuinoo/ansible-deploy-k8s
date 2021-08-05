@@ -12,7 +12,9 @@ conntrack:
   min: 131072
 enableProfiling: false
 healthzBindAddress: {{ ansible_default_ipv4.address }}:10256
+metricsBindAddress: {{ ansible_default_ipv4.address }}:10249
 mode: ipvs
+nodePortAddresses: null
 ipvs:
   excludeCIDRs: null
   minSyncPeriod: 2s
@@ -22,8 +24,6 @@ ipvs:
   tcpFinTimeout: 0s
   tcpTimeout: 0s
   udpTimeout: 0s
-metricsBindAddress: {{ ansible_default_ipv4.address }}:10249
-nodePortAddresses: null
 oomScoreAdj: -999
 winkernel:
   enableDSR: false

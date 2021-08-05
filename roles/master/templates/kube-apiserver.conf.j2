@@ -1,6 +1,9 @@
 KUBE_API_ARGS="\
     --advertise-address={{ ansible_default_ipv4.address }} \
     --allow-privileged=true \
+    --anonymous-auth=false \
+    --allow-privileged=true \
+    --audit-dynamic-configuration \
     --audit-log-format=json \
     --audit-log-maxage=7 \
     --audit-log-maxbackup=10 \
@@ -8,20 +11,36 @@ KUBE_API_ARGS="\
     --audit-policy-file=/etc/kubernetes/audit-policy.yaml \
     --audit-log-path={{ kubernetes.log }}/audit.log \
     --authorization-mode=RBAC,Node \
+    --bind-address={{ ansible_default_ipv4.address  }}\
     --client-ca-file=/etc/kubernetes/pki/ca.pem \
+    --default-not-ready-toleration-seconds=300 \
+    --default-unreachable-toleration-seconds=300 \
+    --default-watch-cache-size=200 \
+    --delete-collection-workers=2 \
     --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeClaimResize,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority \
-    --enable-bootstrap-token-auth=true \
+    --enable-aggregator-routing \
+    --enable-bootstrap-token-auth \
+    --endpoint-reconciler-type=lease \
     --etcd-cafile=/etc/kubernetes/pki/etcd-ca.pem \
     --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.pem \
     --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key \
     --etcd-servers={% set pk = groups['etcd'] %}{% for host in pk %}https://{{ host }}:2379{% if not loop.last %},{% endif %}{% endfor %} \
-    --feature-gates=RemoveSelfLink=false \
+    --event-ttl=200h \
     --feature-gates=DynamicKubeletConfig=true \
-    --secure-port=6443 \
+    --feature-gates=DynamicAuditing=true \
+    --feature-gates=RotateKubeletClientCertificate=true \
+    --feature-gates=RotateKubeletServerCertificate=true \
+    --feature-gates=TTLAfterFinished=true \
     --insecure-port=0 \
+    --kubelet-certificate-authority=/etc/kubernetes/pki/ca.pem \
     --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.pem \
     --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key \
-    --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+    --kubelet-https=true \
+    --kubelet-timeout=10s \
+    --logtostderr=true \
+    --max-mutating-requests-inflight=2000 \
+    --max-requests-inflight=4000 \
+    --profiling=true \
     --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.pem \
     --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key \
     --requestheader-allowed-names=front-proxy-client \
@@ -29,14 +48,13 @@ KUBE_API_ARGS="\
     --requestheader-extra-headers-prefix=X-Remote-Extra- \
     --requestheader-group-headers=X-Remote-Group \
     --requestheader-username-headers=X-Remote-User \
+    --runtime-config=api/all=true \
     --service-account-key-file=/etc/kubernetes/pki/sa.pub \
     --service-account-issuer=https://kubernetes.default.svc.{{ kubernetes.clusterDns }} \
     --service-account-signing-key-file=/etc/kubernetes/pki/sa.key \
     --service-cluster-ip-range={{ kubernetes.serviceSubnet }} \
+    --secure-port=6443 \
     --tls-cert-file=/etc/kubernetes/pki/apiserver.pem \
     --tls-private-key-file=/etc/kubernetes/pki/apiserver.key \
     --service-node-port-range=30000-50000 \
-    --anonymous-auth=false \
-    --default-not-ready-toleration-seconds=300 \
-    --default-unreachable-toleration-seconds=300 \
     --v=2"

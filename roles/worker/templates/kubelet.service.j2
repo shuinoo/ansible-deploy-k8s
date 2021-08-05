@@ -9,7 +9,12 @@ User=root
 WorkingDirectory={{ kubernetes.kubelet_dir | default("/data/kubernetes/kubelet") }}
 EnvironmentFile=-/etc/kubernetes/kubelet
 ExecStart=/usr/bin/kubelet $KUBELET_ARGS
+
 Restart=on-failure
+KillMode=process
+RestartSec=5
+StartLimitInterval=0
+
 
 [Install]
 WantedBy=multi-user.target

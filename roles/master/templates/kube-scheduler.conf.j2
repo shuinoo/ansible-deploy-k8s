@@ -1,7 +1,16 @@
 KUBE_SCHEDULER_ARGS="\
-    --bind-address=0.0.0.0 \
-    --kubeconfig=/etc/kubernetes/scheduler.kubeconfig \
     --authorization-kubeconfig=/etc/kubernetes/scheduler.kubeconfig \
     --authentication-kubeconfig=/etc/kubernetes/scheduler.kubeconfig \
+    --bind-address=0.0.0.0 \
+    --client-ca-file=/etc/kubernetes/pki/ca.pem \
+    --feature-gates=TTLAfterFinished=true \
+    --kubeconfig=/etc/kubernetes/scheduler.kubeconfig \
     --leader-elect=true \
+    --logtostderr=true \
+    --port=0  \
+    --requestheader-client-ca-file=/etc/kubernetes/pki/ca.pem \
+    --requestheader-extra-headers-prefix="X-Remote-Extra-" \
+    --requestheader-group-headers=X-Remote-Group \
+    --requestheader-username-headers=X-Remote-User \
+    --secure-port=10259 \
     --v=2"

@@ -5,19 +5,36 @@ KUBE_CONTROLLER_MANAGER_ARGS="\
     --authorization-kubeconfig=/etc/kubernetes/controller-manager.kubeconfig \
     --client-ca-file=/etc/kubernetes/pki/ca.pem \
     --cluster-cidr={{ kubernetes.podSubnet }} \
-    --service-cluster-ip-range={{ kubernetes.serviceSubnet }} \
-    --cluster-name=kubernetes \
+    --cluster-name={{ kuberenetes.clusterName }} \
     --cluster-signing-cert-file=/etc/kubernetes/pki/ca.pem \
     --cluster-signing-key-file=/etc/kubernetes/pki/ca.key \
     --controllers=*,bootstrapsigner,tokencleaner \
+    --concurrent-deployment-syncs=10 \
+    --concurrent-gc-syncs=30 \
+    --concurrent-service-syncs=2 \
     --deployment-controller-sync-period=30s \
-    --horizontal-pod-autoscaler-sync-period=30s \
+    --experimental-cluster-signing-duration=867000h \
+    --feature-gates=RotateKubeletServerCertificate=true \
+    --feature-gates=RotateKubeletClientCertificate=true \
+    --feature-gates=TTLAfterFinished=true \
+    --horizontal-pod-autoscaler-sync-period=10s \
+    --kube-api-burst=2000 \
+    --kube-api-qps=1000 \
     --kubeconfig=/etc/kubernetes/controller-manager.kubeconfig \
     --leader-elect=true \
+    --logtostderr=true \
     --node-cidr-mask-size=24 \
+    --pod-eviction-timeout=6m \
+    --profiling=true \
     --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.pem \
+    --requestheader-extra-headers-prefix="X-Remote-Extra-" \
+    --requestheader-group-headers=X-Remote-Group \
+    --requestheader-username-headers=X-Remote-User \
     --root-ca-file=/etc/kubernetes/pki/ca.pem \
+    --service-cluster-ip-range={{ kubernetes.serviceSubnet }} \
     --service-account-private-key-file=/etc/kubernetes/pki/sa.key \
+    --terminated-pod-gc-threshold=10000 \
+    --tls-cert-file=/etc/kubernetes/pki/controller-manager.pem \
+    --tls-private-key-file=/etc/kubernetes/pki/controller-manager.key \
     --use-service-account-credentials=true \
-    --feature-gates=RotateKubeletServerCertificate=true \
     --v=2"
