@@ -1,4 +1,3 @@
-
 ## 一、配置Playbook
 
 ### 1.1、拉取Playbook代码
