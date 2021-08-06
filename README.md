@@ -7,7 +7,6 @@ git clone https://github.com/k8sre/k8s.git
 ```
 
 
-
 ### 1.2、配置inventory
 
 请按照inventory模板格式修改对应资源
@@ -46,6 +45,7 @@ yum -y install python36-PyYAML python36-asn1crypto python36-cffi python36-crypto
 ```
 
 - 需要配置epel源
+wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
 
 在单独的Ansible控制机执行以下命令安装Ansible
 
