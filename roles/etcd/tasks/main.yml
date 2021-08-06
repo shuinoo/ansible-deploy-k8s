@@ -18,7 +18,7 @@
 
 - name: "确定etcd binary在/tmp"
   shell: ls /tmp/etcd-v{{ etcd.version  }}-linux-amd64.tar.gz
-  ingore_errors: true
+  ignore_errors: true
   register: etcd_bin_ready
 
 - name: "Download etcd binary"
@@ -26,10 +26,8 @@
   get_url:
     url: "https://mirrors.huaweicloud.com/etcd/v{{ etcd.version }}/etcd-v{{ etcd.version }}-linux-amd64.tar.gz"
     dest: /tmp/
-  register: etcd_bin_exist_ready
 
 - name: "Unarchive etcd"
-  when: etcd_bin_exist_ready.rc != 0
   unarchive:
     src: "/tmp/etcd-v{{ etcd.version }}-linux-amd64.tar.gz"
     dest: /tmp/

@@ -47,6 +47,8 @@ kubernetes:
   clustername: wx-k8s
   # 集群管理员
   cluseradmin: wx-admin
+  # 集群端口范围
+  portrange: 30000-50000
 
 # Container-runtime
 container_runtime: docker
