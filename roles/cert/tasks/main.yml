@@ -31,6 +31,7 @@
     privatekey_path: "{{ cert.dir }}/etcd-ca.key"
     use_common_name_for_san: no
     common_name: etcd-ca
+    create_subject_key_identifier: yes
     basic_constraints_critical: yes
     basic_constraints:
       - CA:TRUE
@@ -49,7 +50,6 @@
   openssl_certificate:
     path: "{{ cert.dir }}/etcd-ca.pem"
     provider: selfsigned
-    ownca_not_after: +36500d
     selfsigned_create_subject_key_identifier: never_create
     privatekey_path: "{{ cert.dir }}/etcd-ca.key"
     csr_path: "{{ cert.dir }}/etcd-ca.csr"
@@ -68,6 +68,9 @@
     path: "{{ cert.dir }}/{{ item }}/etcd-server.csr"
     privatekey_path: "{{ cert.dir }}/{{ item }}/etcd-server.key"
     common_name: "{{ item }}"
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -89,7 +92,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/etcd-server.key"
     csr_path: "{{ cert.dir }}/{{ item }}/etcd-server.csr"
     ownca_path: "{{ cert.dir }}/etcd-ca.pem"
@@ -111,6 +113,9 @@
     path: "{{ cert.dir }}/{{ item }}/etcd-peer.csr"
     privatekey_path: "{{ cert.dir }}/{{ item }}/etcd-peer.key"
     common_name: "{{ item }}"
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -154,6 +159,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/apiserver-etcd-client.key"
     organization_name: system:masters
     common_name: kube-apiserver-etcd-client
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     use_common_name_for_san: no
     key_usage_critical: yes
     key_usage:
@@ -170,7 +178,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/apiserver-etcd-client.key"
     csr_path: "{{ cert.dir }}/{{ item }}/apiserver-etcd-client.csr"
     ownca_path: "{{ cert.dir }}/etcd-ca.pem"
@@ -193,6 +200,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/etcd-healthcheck-client.key"
     organization_name: system:masters
     common_name: kube-etcd-healthcheck-client
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     use_common_name_for_san: no
     key_usage_critical: yes
     key_usage:
@@ -209,7 +219,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/etcd-healthcheck-client.key"
     csr_path: "{{ cert.dir }}/{{ item }}/etcd-healthcheck-client.csr"
     ownca_path: "{{ cert.dir }}/etcd-ca.pem"
@@ -240,6 +249,7 @@
     privatekey_path: "{{ cert.dir }}/ca.key"
     use_common_name_for_san: no
     common_name: kubernetes
+    create_subject_key_identifier: yes
     basic_constraints_critical: yes
     basic_constraints:
       - CA:TRUE
@@ -258,7 +268,6 @@
   openssl_certificate:
     path: "{{ cert.dir }}/ca.pem"
     provider: selfsigned
-    ownca_not_after: +36500d
     selfsigned_create_subject_key_identifier: never_create
     privatekey_path: "{{ cert.dir }}/ca.key"
     csr_path: "{{ cert.dir }}/ca.csr"
@@ -278,6 +287,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/apiserver.key"
     common_name: kube-apiserver
     use_common_name_for_san: no
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -290,13 +302,12 @@
       - DNS:kubernetes.default
       - DNS:kubernetes.default.svc
       - DNS:kubernetes.default.svc.cluster
-      - DNS:kubernetes.default.svc.{{ kubernetes.clusterDns }}
-      #- DNS:{% if 'domain_name' in loadbalance %}{{ loadbalance.domain_name }}{% else %}{{ loadbalance.ip }}{% endif %}
+      - DNS:kubernetes.default.svc.cluster.local
+      - DNS:{% if 'domain_name' in loadbalance %}{{ loadbalance.domain_name }}{% else %}{{ loadbalance.ip }}{% endif %}
       - IP:127.0.0.1
       - IP:{{ item }}
       - IP:{{ kubernetes.serviceSubnet | next_nth_usable(1) }}
-      #- IP:{ loadbalance.ip }}
-      - IP:192.168.199.254
+      - IP:{{ loadbalance.ip }}
   with_items:
     - "{{ groups['master'] }}"
 
@@ -306,7 +317,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/apiserver.key"
     csr_path: "{{ cert.dir }}/{{ item }}/apiserver.csr"
     ownca_path: "{{ cert.dir }}/ca.pem"
@@ -330,6 +340,9 @@
     organization_name: system:masters
     common_name: kube-apiserver-kubelet-client
     use_common_name_for_san: no
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -345,7 +358,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/apiserver-kubelet-client.key"
     csr_path: "{{ cert.dir }}/{{ item }}/apiserver-kubelet-client.csr"
     ownca_path: "{{ cert.dir }}/ca.pem"
@@ -367,7 +379,10 @@
     path: "{{ cert.dir }}/{{ item }}/admin.csr"
     privatekey_path: "{{ cert.dir }}/{{ item }}/admin.key"
     organization_name: system:masters
-    common_name: "{{ kubernetes.clusterAdminName }}"
+    common_name: kubernetes-admin
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     use_common_name_for_san: no
     key_usage_critical: yes
     key_usage:
@@ -384,7 +399,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/admin.key"
     csr_path: "{{ cert.dir }}/{{ item }}/admin.csr"
     ownca_path: "{{ cert.dir }}/ca.pem"
@@ -407,6 +421,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/controller-manager.key"
     common_name: system:kube-controller-manager
     use_common_name_for_san: no
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -422,7 +439,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/controller-manager.key"
     csr_path: "{{ cert.dir }}/{{ item }}/controller-manager.csr"
     ownca_path: "{{ cert.dir }}/ca.pem"
@@ -445,6 +461,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/scheduler.key"
     common_name: system:kube-scheduler
     use_common_name_for_san: no
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -458,7 +477,6 @@
   openssl_certificate:
     path: "{{ cert.dir }}/{{ item }}/scheduler.pem"
     provider: ownca
-    ownca_not_after: +36500d
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
     privatekey_path: "{{ cert.dir }}/{{ item }}/scheduler.key"
@@ -484,6 +502,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/kube-proxy.key"
     common_name: system:kube-proxy
     use_common_name_for_san: no
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -498,7 +519,6 @@
   openssl_certificate:
     path: "{{ cert.dir }}/{{ item }}/kube-proxy.pem"
     provider: ownca
-    ownca_not_after: +36500d
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
     privatekey_path: "{{ cert.dir }}/{{ item }}/kube-proxy.key"
@@ -533,6 +553,7 @@
     privatekey_path: "{{ cert.dir }}/front-proxy-ca.key"
     use_common_name_for_san: no
     common_name: front-proxy-ca
+    create_subject_key_identifier: yes
     basic_constraints_critical: yes
     basic_constraints:
       - CA:TRUE
@@ -551,7 +572,6 @@
   openssl_certificate:
     path: "{{ cert.dir }}/front-proxy-ca.pem"
     provider: selfsigned
-    ownca_not_after: +36500d
     selfsigned_create_subject_key_identifier: never_create
     privatekey_path: "{{ cert.dir }}/front-proxy-ca.key"
     csr_path: "{{ cert.dir }}/front-proxy-ca.csr"
@@ -571,6 +591,9 @@
     privatekey_path: "{{ cert.dir }}/{{ item }}/front-proxy-client.key"
     common_name: front-proxy-client
     use_common_name_for_san: no
+    basic_constraints_critical: yes
+    basic_constraints:
+      - CA:FALSE
     key_usage_critical: yes
     key_usage:
       - digitalSignature
@@ -586,7 +609,6 @@
     provider: ownca
     ownca_create_subject_key_identifier: never_create
     ownca_create_authority_key_identifier: no
-    ownca_not_after: +36500d
     privatekey_path: "{{ cert.dir }}/{{ item }}/front-proxy-client.key"
     csr_path: "{{ cert.dir }}/{{ item }}/front-proxy-client.csr"
     ownca_path: "{{ cert.dir }}/front-proxy-ca.pem"

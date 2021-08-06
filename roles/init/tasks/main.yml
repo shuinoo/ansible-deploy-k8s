@@ -15,19 +15,19 @@
   timezone:
     name: Asia/Shanghai
 
-# - name: "Install chrony"
-#   apt:
-#     name: "chrony"
-#     state: installed
-#   tags: ntp
-# 
-# - name: "Set chrony"
-#   copy:
-#     src: "chrony.conf"
-#     dest: "/etc/chrony.conf"
-#   notify:
-#     - restart chrony
-#   tags: ntp
+- name: "Install chrony"
+  yum:
+    name: "chrony"
+    state: installed
+  tags: ntp
+
+- name: "Set chrony"
+  copy:
+    src: "chrony.conf"
+    dest: "/etc/chrony.conf"
+  notify:
+    - restart_chrony
+  tags: ntp
 
 - name: "Disable swap"
   shell: swapoff -a
@@ -44,7 +44,6 @@
   selinux:
     state: disabled
   tags: selinux
-  when: ansible_os_family == "RedHat"
 
 - name: "Stop firewalld"
   systemd:
@@ -52,15 +51,6 @@
     enabled: no
     state: stopped
   tags: firewalld
-  when: ansible_os_family == "RedHat"
-  
-- name: "Stop firewalld"
-  systemd:
-    name: ufw
-    enabled: no
-    state: stopped
-  tags: firewalld
-  when: ansible_os_family == "Debian"
 
 - name: "Set ssh"
   lineinfile:
@@ -70,13 +60,47 @@
     state: present
   with_items:
     - { regexp: "UseDNS", line: "UseDNS no" }
+    - { regexp: "ClientAliveInterval", line: "ClientAliveInterval 600" }
+    - { regexp: "ClientAliveCountMax", line: "ClientAliveCountMax 2" }
     - { regexp: "AddressFamily", line: "AddressFamily inet" }
     - { regexp: "PermitRootLogin", line: "PermitRootLogin yes" }
     - { regexp: "PermitEmptyPasswords", line: "PermitEmptyPasswords no" }
     - { regexp: "PasswordAuthentication", line: "PasswordAuthentication yes" }
   notify:
-    - restart sshd
+    - restart_sshd
   tags: sshd
+
+- name: "Set password expiration time"
+  lineinfile:
+    dest: "/etc/login.defs"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { regexp: "PASS_MIN_DAYS", line: "PASS_MIN_DAYS 7" }
+    - { regexp: "PASS_MAX_DAYS", line: "PASS_MAX_DAYS 90" }
+  tags: passwd
+
+- name: "Set password complexity"
+  lineinfile:
+    dest: "/etc/security/pwquality.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { regexp: "minlen", line: "minlen=10" }
+    - { regexp: "minclass", line: "minclass=3" }
+  tags: passwd
+
+- name: "Set password remember"
+  replace:
+    path: "{{ item.path }}"
+    regexp: "use_authtok$"
+    replace: "use_authtok remember=5"
+  with_items:
+    - { path: "/etc/pam.d/password-auth" }
+    - { path: "/etc/pam.d/system-auth" }
+  tags: passwd
 
 - name: "Set limits"
   pam_limits:
@@ -164,7 +188,7 @@
     - {name: 'net.bridge.bridge-nf-call-ip6tables',value: '1' }
   tags: sysctl
 
-- name: "Install base application"
+- name: "RedHat install base application"
   yum:
     name: "{{ item.line }}"
     state: installed
@@ -174,18 +198,15 @@
     - {line: 'curl'}
     - {line: 'wget'}
     - {line: 'lsof'}
-    - {line: 'lrzsz'}
     - {line: 'rsync'}
-    - {line: 'telnet'}
     - {line: 'bash-completion'}
     - {line: 'nmap-ncat'}
     - {line: 'net-tools'}
     - {line: 'nfs-utils'}
     - {line: 'yum-utils'}
   tags: install_app
-  when: ansible_os_family == "RedHat"
 
-- name: "Install base application"
+- name: "Ubuntu install base application"
   apt:
     name: "{{ item.line }}"
     state: present
@@ -195,9 +216,7 @@
     - {line: 'curl'}
     - {line: 'wget'}
     - {line: 'lsof'}
-    - {line: 'lrzsz'}
     - {line: 'rsync'}
-    - {line: 'telnet'}
     - {line: 'bash-completion'}
     - {line: 'netcat'}
     - {line: 'net-tools'}

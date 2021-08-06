@@ -1,20 +1,15 @@
 [Unit]
 Description=Kubernetes Kubelet Server
 Documentation=https://github.com/kubernetes/kubernetes
-After={{container_runtime}}.service
-Requires={{container_runtime}}.service
+After=containerd.service
+Requires=containerd.service
 
 [Service]
 User=root
-WorkingDirectory={{ kubernetes.kubelet_dir | default("/data/kubernetes/kubelet") }}
-EnvironmentFile=-/etc/kubernetes/kubelet
+WorkingDirectory={{ kubernetes.kubelet_dir | default("/var/lib/kubelet") }}
+EnvironmentFile=-/etc/sysconfig/kubelet
 ExecStart=/usr/bin/kubelet $KUBELET_ARGS
-
 Restart=on-failure
-KillMode=process
-RestartSec=5
-StartLimitInterval=0
-
 
 [Install]
 WantedBy=multi-user.target

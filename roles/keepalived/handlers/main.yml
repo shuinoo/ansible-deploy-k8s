@@ -1,5 +1,5 @@
 
-- name: restart keepalived
+- name: restart_keepalived
   systemd:
     name: keepalived
     state: restarted

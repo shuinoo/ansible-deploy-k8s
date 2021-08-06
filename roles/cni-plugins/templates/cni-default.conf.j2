@@ -1,0 +1,13 @@
+{
+  "cniVersion": "0.3.0",
+  "name": "mynet",
+  "type": "bridge",
+  "bridge": "mynet0",
+  "isGateway": true,
+  "ipMasq": true,
+  "hairpinMode": true,
+  "ipam": {
+            "type": "host-local",
+            "subnet": "{{ kubernetes.serviceSubnet }}"
+        }
+}

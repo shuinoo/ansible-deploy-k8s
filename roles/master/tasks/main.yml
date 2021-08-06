@@ -29,14 +29,14 @@
 
 - name: "Create kubernetes log directory"
   file:
-    path: '{{ kubernetes.log | default("/data/kubernetes/logs")  }}'
+    path: "{{ kubernetes.log | default("/data/kubernetes/logs") }}"
     owner: kube
     group: kube
     mode: 0755
     state: directory
   tags: dir
 
-- name: "检查kubectl是否已经存在"
+- name: "检查kubectl二进制是否已经存在"
   shell: which kubectl
   ignore_errors: true
   register: kubectl_ready
@@ -44,7 +44,7 @@
 - name: "Install kubectl"
   when: kubectl_ready.rc != 0
   get_url:
-    url: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version }}/bin/linux/amd64/kubectl"
+    url: "{{ kubernetes.download_url }}/{{ kubernetes.version }}/bin/linux/amd64/kubectl"
     owner: kube
     group: kube
     mode: 0755
@@ -59,7 +59,7 @@
 - name: "Install kube-apiserver"
   when: kube_apiserver_ready.rc != 0
   get_url:
-    url: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version  }}/bin/linux/amd64/kube-apiserver"
+    url: "{{ kubernetes.download_url }}/{{ kubernetes.version  }}/bin/linux/amd64/kube-apiserver"
     owner: kube
     group: kube
     mode: 0750
@@ -74,22 +74,7 @@
 - name: "Install kube_controller_manager"
   when: kube_controller_manager_ready.rc != 0
   get_url:
-    url: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version  }}/bin/linux/amd64/kube-controller-manager"
-    owner: kube
-    group: kube
-    mode: 0750
-    dest: /usr/bin/
-  tags: install_master
-
-- name: "检查kube-scheduler二进制文件是否已经存在"
-  shell: which kube-scheduler
-  ignore_errors: true
-  register: kube_scheduler_ready
-
-- name: "Install kube-scheduler"
-  when: kube_scheduler_ready.rc != 0
-  get_url:
-    url: "https://kubernetes.oss-cn-hangzhou.aliyuncs.com/kubernetes-release/release/{{ kubernetes.version  }}/bin/linux/amd64/kube-scheduler"
+    url: "{{ kubernetes.download_url }}/{{ kubernetes.version  }}/bin/linux/amd64/kube-controller-manager"
     owner: kube
     group: kube
     mode: 0750
@@ -179,21 +164,6 @@
     - {src: "kube-controller-manager.service.j2",dest: "/usr/lib/systemd/system/kube-controller-manager.service" }
     - {src: "kube-scheduler.service.j2",dest: "/usr/lib/systemd/system/kube-scheduler.service" }
   tags: dis_master_systemd
-  when: ansible_os_family == "RedHat"
-
-- name: "Distribution master systemd unit"
-  template:
-    src: "{{ item.src }}"
-    owner: root
-    group: root
-    mode: 0644
-    dest: "{{ item.dest }}"
-  with_items:
-    - {src: "kube-apiserver.service.j2",dest: "/lib/systemd/system/kube-apiserver.service" }
-    - {src: "kube-controller-manager.service.j2",dest: "/lib/systemd/system/kube-controller-manager.service" }
-    - {src: "kube-scheduler.service.j2",dest: "/lib/systemd/system/kube-scheduler.service" }
-  tags: dis_master_systemd
-  when: ansible_os_family == "Debian"
 
 - name: "Restart kube-apiserver"
   systemd:

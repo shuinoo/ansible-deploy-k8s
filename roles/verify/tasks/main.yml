@@ -1,8 +1,8 @@
 ---
-#- name: Fail if not supported OS
-#  assert:
-#    that: ansible_os_family in ['RedHat', 'CentOS']
-#    msg: "{{ ansible_os_family }} is not a supported OS"
+- name: Fail if not supported OS
+  assert:
+    that: ansible_os_family in ['RedHat', 'CentOS']
+    msg: "{{ ansible_os_family }} is not a supported OS"
 
 - name: Fail when hostname is not specified
   assert:

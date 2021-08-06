@@ -24,11 +24,11 @@ vrrp_instance VI_1 {
     }
 
     unicast_peer {
-        {{ unicast_peer }}
+        {{{ unicast_peer }}}
     }
 
     virtual_ipaddress {
-        {{ loadbalance.ip }}/{{ loadbalance.netmask }} 
+        {{loadbalance.ip}}/{{ loadbalance.netmask }}
     }
 
     track_script {

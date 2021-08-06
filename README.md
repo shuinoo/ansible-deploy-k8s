@@ -1,15 +1,10 @@
-使用Ansible Playbook进行生产级别高可用kubernetes集群部署，包含初始化系统配置、自动签发集群证书、安装配置etcd集群、安装配置haproxy及keepalived、calico、coredns、metrics-server等，并使用bootstrap方式认证以及kubernetes组件健康检查。另外支持集群节点扩容、替换集群证书、kubernetes版本升级等。本Playbook使用二进制方式部署。
-
-配合kubernetes剔除dockershim，本Playbook将运行时修改为containerd。
-
-
 
 ## 一、配置Playbook
 
 ### 1.1、拉取Playbook代码
 
 ```
-git clone https://github.com/shuinoo/ansible-deploy-k8s.git
+git clone https://github.com/k8sre/k8s.git
 ```
 
 
@@ -17,30 +12,6 @@ git clone https://github.com/shuinoo/ansible-deploy-k8s.git
 ### 1.2、配置inventory
 
 请按照inventory模板格式修改对应资源
-
-```
-#本组内填写etcd服务器及主机名
-[etcd]
-172.16.90.201 hostname=sh-etcd-01
-172.16.90.202 hostname=sh-etcd-02
-172.16.90.203 hostname=sh-etcd-03
-
-#本组内填写master服务器及主机名
-[master]
-172.16.90.204 hostname=sh-master-01
-172.16.90.205 hostname=sh-master-02
-172.16.90.206 hostname=sh-master-03
-
-[haproxy]
-172.16.90.198 hostname=sh-haproxy-01 type=MASTER priority=100
-172.16.90.199 hostname=sh-haproxy-02 type=BACKUP priority=90
-
-#本组内填写node服务器及主机名
-[worker]
-172.16.90.207 hostname=sh-worker-01
-172.16.90.208 hostname=sh-worker-02
-172.16.90.209 hostname=sh-worker-03
-```
 
 - 当haproxy和kube-apiserver部署在同一台服务器时，请确保端口不冲突。
 
@@ -130,10 +101,16 @@ ansible-playbook cluster.yml -i inventory --skip-tags=haproxy,keepalived
 ansible-playbook fdisk.yml -i inventory -l ${SCALE_MASTER_IP} -e "disk=sdb dir=/var/lib/containerd"
 ```
 
+执行生成节点证书
+
+```
+ansible-playbook cluster.yml -i inventory -t cert
+```
+
 执行节点初始化
 
 ```
-ansible-playbook cluster.yml -i inventory -l ${SCALE_MASTER_IP} -t verify,cert,init
+ansible-playbook cluster.yml -i inventory -l ${SCALE_MASTER_IP} -t verify,init
 ```
 
 执行节点扩容
@@ -154,10 +131,16 @@ ansible-playbook cluster.yml -i inventory -l ${SCALE_MASTER_IP} -t master,contai
 ansible-playbook fdisk.yml -i inventory -l ${SCALE_WORKER_IP} -e "disk=sdb dir=/var/lib/containerd"
 ```
 
+执行生成节点证书
+
+```
+ansible-playbook cluster.yml -i inventory -t cert
+```
+
 执行节点初始化
 
 ```
-ansible-playbook cluster.yml -i inventory -l ${SCALE_WORKER_IP} -t verify,cert,init
+ansible-playbook cluster.yml -i inventory -l ${SCALE_WORKER_IP} -t verify,init
 ```
 
 执行节点扩容
@@ -191,7 +174,7 @@ etcdctl endpoint health \
         --cacert=/etc/etcd/pki/etcd-ca.pem \
         --cert=/etc/etcd/pki/etcd-healthcheck-client.pem \
         --key=/etc/etcd/pki/etcd-healthcheck-client.key \
-        --endpoints=https://172.16.90.201:2379,https://172.16.90.202:2379,https://172.16.90.203:2379
+        --endpoints=https://172.16.90.101:2379,https://172.16.90.102:2379,https://172.16.90.103:2379
 ```
 
 逐个删除旧的kubelet证书

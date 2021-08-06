@@ -3,17 +3,10 @@
   yum:
     name: haproxy
     state: present
-  when: ansible_os_family == "RedHat"
-
-- name: "Install haproxy"
-  yum:
-    name: haproxy
-    state: present
-  when: ansible_pkg_mgr == 'apt'
 
 - name: "Generate haproxy.cfg"
   template:
     src: "haproxy.cfg.j2"
     dest: "/etc/haproxy/haproxy.cfg"
   notify:
-    - restart haproxy
+    - restart_haproxy

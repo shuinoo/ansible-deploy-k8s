@@ -1,11 +1,11 @@
 ---
-- name: restart etcd
+- name: restart_etcd
   command: /bin/true
   notify:
     - reload etcd
-    - wait for etcd up
+    - wait_for_etcd_up
 
-- name: reload etcd
+- name: reload_etcd
   systemd:
     name: etcd
     state: restarted
@@ -13,7 +13,7 @@
     enabled: yes
   register: etcd_restarted
 
-- name: wait for etcd up
+- name: wait_for_etcd_up
   uri:
     url: "https://{{ ansible_default_ipv4.address }}:2379/health"
     validate_certs: no

@@ -1,0 +1,111 @@
+---
+- name: "Fail docker setup if distribution is not supported"
+  fail:
+    msg: "{{ ansible_distribution }} is not supported by docker."
+  when:
+    - not ansible_distribution in ["CentOS", "OracleLinux", "RedHat", "Ubuntu", "Debian", "Fedora", "AlmaLinux", "Amazon"]
+
+- name: "RedHat install docker depend packages"
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+  when: ansible_os_family == 'RedHat'
+  tags: docker_depends
+
+- name: "Ubuntu install docker depend packages"
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apt-transport-https
+    - ca-certificates 
+    - curl
+    - gnupg
+    - lsb-release
+  when: ansible_os_family == 'Debian'
+  tags: docker_depends
+
+- name: "RedHat add docker repo"
+  yum_repository:
+    file: docker
+    name: "docker"
+    description: "Docker Stable - $basearch"
+    baseurl: "https://mirrors.bfsu.edu.cn/docker-ce/linux/centos/7/$basearch/stable"
+    gpgkey: "https://mirrors.bfsu.edu.cn/docker-ce/linux/centos/gpg"
+    gpgcheck: yes
+    enabled: yes
+  when: ansible_os_family == 'RedHat'
+  tags: docker_repo
+
+- name: "RedHat install docker"
+  yum:
+    update_cache: yes
+    enablerepo: docker
+    name: "docker-ce-{{ docker.version }}"
+    state: installed
+  tags: install_docker
+  when: ansible_os_family == 'RedHat'
+
+- name: "gather os specific variables"
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ ansible_distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
+      paths:
+        - '/vars'
+
+- name: "ensure docker repository public key is installed"
+  apt_key:
+    id: "{{ item }}"
+    url: "{{ docker_repo_key_info.url }}"
+    state: present
+  register: keyserver_task_result
+  until: keyserver_task_result is succeeded
+  retries: 4
+  delay: "{{ retry_stagger | d(3) }}"
+  with_items: "{{ docker_repo_key_info.repo_keys }}"
+  when: ansible_os_family == 'Debian'
+
+- name: "ensure docker repository is enabled"
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items: "{{ docker_repo_info.repos }}"
+  when: ansible_os_family == 'Debian'
+
+- name: "Ubuntu install docker"
+  apt:
+    name: "{{ item }}"
+    state: present
+  when: ansible_os_family == 'Debian'
+  changed_when: false
+  with_items:
+    - "docker-ce={{ docker.ubuntuversion }}"
+    - "docker-ce-cli={{ docker.ubuntuversion }}"
+    - "containerd.io"
+  tags: install_docker
+
+- name: "Create docker directory"
+  file:
+    path: "{{ docker.root }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  tags: docker_config
+
+- name: "Copy docker config"
+  template:
+    src: "daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
+    owner: root
+    group: root
+    mode: 0644
+  tags: docker_config
+  notify:
+    - restart_docker

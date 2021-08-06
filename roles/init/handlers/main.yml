@@ -1,9 +1,10 @@
-- name: restart sshd
+- name: restart_sshd
   systemd:
      name: sshd
      state: restarted
      enabled: yes
-- name: restart chrony
+
+- name: restart_chrony
   systemd:
      name: chronyd
      state: restarted
