@@ -81,6 +81,21 @@
     dest: /usr/bin/
   tags: install_master
 
+- name: "检查kube-scheduler二进制文件是否已经存在"
+  shell: which kube-scheduler
+  ignore_errors: true
+  register: kube_scheduler_ready
+
+- name: "Install kube-scheduler"
+  when: kube_scheduler_ready.rc != 0
+  get_url:
+    url: "{{ kubernetes.download_url }}/{{ kubernetes.version  }}/bin/linux/amd64/kube-scheduler"
+    owner: kube
+    group: kube
+    mode: 0750
+    dest: /usr/bin/
+  tags: install_master
+
 - name: "Distribution master certs"
   copy:
     src: "{{ item.line }}"
