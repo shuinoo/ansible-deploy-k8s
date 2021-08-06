@@ -1,0 +1,64 @@
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+address: 0.0.0.0
+allowedUnsafeSysctls:
+  - "net.core.somaxconn"
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+    cacheTTL: 0s
+  x509:
+    clientCAFile: "/etc/kubernetes/pki/ca.pem"
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 3m0s
+    cacheUnauthorizedTTL: 10s
+cgroupDriver: systemd
+cgroupsPerQOS: true
+clusterDomain: "{{ kubernetes.clusterdns }}"
+clusterDNS:
+{% if dns.enable_nodelocaldns %}
+  - "{{ dns.nodelocaldns_ip }}"
+{% else %}
+  - "{{ kubernetes.serviceSubnet | next_nth_usable(2) }}"
+{% endif %}
+cpuManagerReconcilePeriod: 0s
+containerLogMaxSize: 200Mi
+containerLogMaxFiles: 10
+enforceNodeAllocatable: ["pods"]
+eventBurst: 20
+eventRecordQPS: 5
+evictionHard:
+  memory.available: "100Mi"
+  nodefs.available: "10%"
+  nodefs.inodesFree: "5%"
+  imagefs.available: "15%"
+evictionPressureTransitionPeriod: 0s
+failSwapOn: true
+featureGates:
+  TTLAfterFinished: true
+  RotateKubeletServerCertificate: true
+  RotateKubeletClientCertificate: true
+fileCheckFrequency: 0s
+healthzBindAddress: {{ ansible_default_ipv4.address  }}
+healthzPort: 10248
+httpCheckFrequency: 0s
+kubeReserved: {}
+kubeAPIBurst: 2000
+kubeAPIQPS: 1000
+imageMinimumGCAge: 0s
+nodeStatusReportFrequency: 0s
+nodeStatusUpdateFrequency: 0s
+maxPods: 300
+podCIDR: "{{ kubernetes.podSubnet  }}"
+readOnlyPort: 0
+resolvConf: /etc/resolv.conf
+rotateCertificates: true
+runtimeRequestTimeout: 15m
+staticPodPath: /etc/kubernetes/manifests
+streamingConnectionIdleTimeout: 0s
+syncFrequency: 0s
+volumeStatsAggPeriod: 0s

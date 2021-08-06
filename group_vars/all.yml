@@ -20,6 +20,7 @@ etcd:
 # 如使用haproxy + keepalived ，并且跟master节点部署在一起时，请修改port以避免端口冲突
 loadbalance:
   ip: 192.168.199.254
+  netmask: 24
   port: 9443
   #domain_name: apiserver.k8sre.com
 
@@ -38,10 +39,25 @@ kubernetes:
   kubelet_dir: "/data/kubernetes/kubelet"
   # cni-plugins: https://github.com/containernetworking/plugins
   cni_plugins_version: v0.8.7
+  # kubernetes 日志目录
+  logs: "/data/kubernetes/logs"
+  # 集群DNS域名
+  clusterdns: cluster.wx
+  # 集群名称
+  clustername: wx-k8s
+  # 集群管理员
+  cluseradmin: wx-admin
 
-# Containerd
-critools:
-  version: v1.21.0
+# Container-runtime
+container_runtime: docker
+docker:
+  # docker 版本
+  version: 19.03.9
+  ubuntuversion: 5:19.03.9~3-0~ubuntu-focal
+  # docker 数据目录
+  root: "/data/kubernetes/docker"
+  # docker 国内镜像地址
+  registry_mirrors: "https://l0z7rpjj.mirror.aliyuncs.com"
 containerd:
   # containerd 版本
   version: 1.4.6
@@ -67,6 +83,8 @@ containerd:
   registries:
     "docker.io": "https://registry-1.docker.io"
     "k8s.gcr.io": "https://registry.aliyuncs.com/k8sxio"
+critools:
+  version: v1.21.0
 
 # Network Plugin
 network_plugin: calico
@@ -88,3 +106,8 @@ dns:
   nodelocaldns_ip: 169.254.20.10
 metrics_server:
   version: v0.4.1
+helm:
+  helm_version: v3.6.0
+ingress:
+  ingress_version: v0.40.0
+  webhook_version: v1.15.1

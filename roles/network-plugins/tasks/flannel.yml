@@ -7,6 +7,11 @@
     - {src: "flannel.yaml.j2", dest: "/tmp/flannel.yaml"}
   tags: flannel
 
+- name: "删除默认cni-plugins配置"
+  file:
+    path: "/etc/cni/net.d/cni-default.conf"
+    state: absent
+
 - name: "Deploy flannel"
   shell: "kubectl apply -f /tmp/flannel.yaml"
   delegate_to: "{{ groups['master'][0] }}"

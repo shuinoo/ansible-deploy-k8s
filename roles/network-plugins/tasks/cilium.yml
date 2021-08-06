@@ -7,6 +7,11 @@
     - {src: "cilium.yaml.j2", dest: "/tmp/cilium.yaml"}
   tags: cilium
 
+- name: "删除默认cni-plugins配置"
+  file:
+    path: "/etc/cni/net.d/cni-default.conf"
+    state: absent
+
 - name: "Deploy cilium"
   shell: "kubectl apply -f /tmp/cilium.yaml"
   delegate_to: "{{ groups['master'][0] }}"

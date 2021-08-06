@@ -41,14 +41,14 @@
 - name: "Set Worker Nodes"
   hosts: master worker
   roles:
-    - role: containerd
-      tags: containerd
-    - role: cri-tools
-      tags: cri-tools
+    - role: container-runtime
+      tags: containerd-runtime
+#    - role: cri-tools
+#      tags: cri-tools
     - role: cni-plugins
       tags: cni-plugins
-    - role: worker
-      tags: worker
+    - role: node
+      tags: node
 
 - name: "Set Container Networking Plugins"
   hosts: master[0]
