@@ -46,7 +46,7 @@ kubernetes:
   # 集群名称
   clustername: wx-k8s
   # 集群管理员
-  cluseradmin: wx-admin
+  clusteradmin: wx-admin
   # 集群端口范围
   portrange: 30000-50000
 
