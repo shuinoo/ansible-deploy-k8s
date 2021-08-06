@@ -379,7 +379,7 @@
     path: "{{ cert.dir }}/{{ item }}/admin.csr"
     privatekey_path: "{{ cert.dir }}/{{ item }}/admin.key"
     organization_name: system:masters
-    common_name: {{ kubernetes.clusteradmin }}
+    common_name: "{{ kubernetes.clusteradmin }}"
     basic_constraints_critical: yes
     basic_constraints:
       - CA:FALSE

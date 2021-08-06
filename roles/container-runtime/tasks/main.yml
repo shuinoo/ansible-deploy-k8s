@@ -1,8 +1,8 @@
 ---
-- import_tasks: containred.yml
-    tags:
-      - containerd
-
 - import_tasks: docker.yml
-    tags:
-      - docker
+  tags:
+    - docker
+
+- import_tasks: containerd.yml
+  tags:
+    - containerd
