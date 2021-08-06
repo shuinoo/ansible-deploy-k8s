@@ -49,15 +49,15 @@
   tags: install_docker
   when: ansible_os_family == 'RedHat'
 
-- name: "gather os specific variables"
-  include_vars: "{{ lookup('first_found', params) }}"
-  vars:
-    params:
-      files:
-        - '{{ ansible_distribution }}.yml'
-        - '{{ ansible_os_family }}.yml'
-      paths:
-        - '/vars'
+  #- name: "gather os specific variables"
+  #  include_vars: "{{ lookup('first_found', params) }}"
+  #  vars:
+  #    params:
+  #      files:
+  #        - '{{ ansible_distribution }}.yml'
+  #        - '{{ ansible_os_family }}.yml'
+  #      paths:
+  #        - '../vars'
 
 - name: "ensure docker repository public key is installed"
   apt_key:
@@ -92,11 +92,14 @@
 
 - name: "Create docker directory"
   file:
-    path: "{{ docker.root }}"
+    path: "{{ item }}"
     owner: root
     group: root
     mode: 0755
     state: directory
+  with_items:
+    - "{{ docker.root }}"
+    - "{{ docker.confdir }}"
   tags: docker_config
 
 - name: "Copy docker config"

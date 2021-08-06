@@ -58,6 +58,7 @@ docker:
   ubuntuversion: 5:19.03.9~3-0~ubuntu-focal
   # docker 数据目录
   root: "/data/kubernetes/docker"
+  confdir: "/etc/docker"
   # docker 国内镜像地址
   registry_mirrors: "https://l0z7rpjj.mirror.aliyuncs.com"
 containerd:
